@@ -42,10 +42,15 @@ app.get("/urls/:shortURL", (req,res) => {
 });
 
 app.post("/urls", (req,res) => {
-  urlDatabase[generateRandomString()] = req.body.longURL;
-  res.send("URL created!");
+  const key = generateRandomString();
+  urlDatabase[key] = req.body.longURL;
+  res.redirect(`/urls/${key}`);
+});
+
+app.get("/u/:shortURL", (req,res) => { 
+  res.redirect(urlDatabase[req.params.shortURL]);//Redirect requests to the actual long URL
 })
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`listening on port ${PORT}!`);
 });
