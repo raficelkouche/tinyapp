@@ -1,3 +1,6 @@
+function generateRandomString() {
+  return Math.random().toString(36).substring(2, 8);
+}
 //Server Setup
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -39,8 +42,7 @@ app.get("/urls/:shortURL", (req,res) => {
 });
 
 app.post("/urls", (req,res) => {
-  console.log(req.body);
-  console.log(typeof req.body)
+  urlDatabase[generateRandomString()] = req.body.longURL;
   res.send("URL created!");
 })
 
