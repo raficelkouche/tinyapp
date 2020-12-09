@@ -1,6 +1,14 @@
 function generateRandomString() {
   return Math.random().toString(36).substring(2, 8);
 }
+function checkIfUserExists(users, email) {
+  for (let user in users) {
+    if (users[user].email === email) {
+      return true;
+    }
+  }
+  return false;
+}
 //Server Setup
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -84,7 +92,6 @@ app.post("/urls/:id", (req,res) => {              //UPDATE the longURL for an ex
 });
 
 app.post("/login", (req,res) => {
-  //res.cookie("username", req.body.username);
   res.redirect("/urls");
 });
 
@@ -94,16 +101,25 @@ app.post("/logout", (req,res) => {
 });
 
 app.post("/register", (req,res) => {
-  const user_id = generateRandomString();
-  users[user_id] = {
-    id: user_id,
-    email: req.body.email,
-    password: req.body.password
-  };
-  console.log(users);
+  if (checkIfUserExists(users,req.body.email)) {
+    res.statusCode = "400";
+    res.end();
+  }
+  else if (!req.body.email || !req.body.password) {
+    res.statusCode = "400";
+    res.end();
+  }
+  else {
+    const user_id = generateRandomString();
+    users[user_id] = {
+      id: user_id,
+      email: req.body.email,
+      password: req.body.password
+    };
   res.cookie('user_id', user_id);
   res.redirect("/urls");
-})
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}!`);
