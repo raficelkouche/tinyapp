@@ -23,26 +23,22 @@ app.get("/urls.json", (req,res) => {
   res.json(urlDatabase);
 });
 
-app.get("/hello", (req,res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
 app.get("/urls", (req,res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls/new", (req, res) => {
+app.get("/urls/new", (req, res) => {              //CREATE a new shortURL:LongURL
   res.render("urls_new");
 });
 
-app.get("/urls/:shortURL", (req,res) => {
+app.get("/urls/:shortURL", (req,res) => {         //READ the shortURL:LongURL key/value pair
   const templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
   res.render("urls_show", templateVars);
 });
 
-app.get("/u/:shortURL", (req, res) => {
-  res.redirect(urlDatabase[req.params.shortURL]);//Redirect requests to the actual long URL
+app.get("/u/:shortURL", (req, res) => {           //Redirect requests to the actual long URL
+  res.redirect(urlDatabase[req.params.shortURL]);
 });
 
 app.post("/urls", (req,res) => {
@@ -51,14 +47,12 @@ app.post("/urls", (req,res) => {
   res.redirect(`/urls/${key}`);
 });
 
-app.post("/urls/:shortURL/delete", (req,res) => {
+app.post("/urls/:shortURL/delete", (req,res) => { //DELETE a shortURL and its corresponding longURL
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
 });
 
-app.post("/urls/:id", (req,res) => {
-  //const templateVars = { shortURL: req.params.id, longURL: req.body.longURL}
-  //console.log(templateVars);
+app.post("/urls/:id", (req,res) => {              //UPDATE the longURL for an existing shortURL
   urlDatabase[req.params.id] = req.body.longURL;
   res.redirect("/urls");
 });
