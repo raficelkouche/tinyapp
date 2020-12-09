@@ -41,14 +41,19 @@ app.get("/urls/:shortURL", (req,res) => {
   res.render("urls_show", templateVars);
 });
 
+app.get("/u/:shortURL", (req, res) => {
+  res.redirect(urlDatabase[req.params.shortURL]);//Redirect requests to the actual long URL
+});
+
 app.post("/urls", (req,res) => {
   const key = generateRandomString();
   urlDatabase[key] = req.body.longURL;
   res.redirect(`/urls/${key}`);
 });
 
-app.get("/u/:shortURL", (req,res) => { 
-  res.redirect(urlDatabase[req.params.shortURL]);//Redirect requests to the actual long URL
+app.post("/urls/:shortURL/delete", (req,res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect("/urls");
 })
 
 app.listen(PORT, () => {
