@@ -24,6 +24,8 @@ function urlsForUser(id) {                //Returns an object that contains the 
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 const app = express();
 const PORT = 8080;
 
@@ -37,12 +39,12 @@ const users = {
   "aJ48lW": {
     id: "aJ48lW",
     email: "user@example.com",
-    password: "purplemonkey"
+    password: bcrypt.hashSync("purplemonkey",saltRounds)
   },
   "z3812s": {
     id: "z3812s",
     email: "abc@123.com",
-    password: "helloworld"
+    password: bcrypt.hashSync("helloworld", saltRounds)
   }
 };
 
@@ -150,7 +152,7 @@ app.post("/urls/:id", (req,res) => {              //UPDATE the longURL for an ex
 app.post("/login", (req,res) => {
   let user = checkIfUserExists(users, req.body.email); //will be either undefined or the unique ID
   if(user) {
-    if(req.body.password === users[user].password) {
+    if(bcrypt.compareSync(req.body.password, users[user].password)) {
       res.cookie("user_id", user);
       res.redirect("/urls");
     }
@@ -184,7 +186,7 @@ app.post("/register", (req,res) => {                                        //cr
     users[user_id] = {
       id: user_id,
       email: req.body.email,
-      password: req.body.password
+      password: bcrypt.hashSync(req.body.password, saltRounds)
     };
   res.cookie('user_id', user_id);
   res.redirect("/urls");
