@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, intial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootrsrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  <title>TinyApp</title>
+</head>
+<%- include('partials/_header') %>
+
+<body>
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <% if (error === "not logged in") { %>
+      <h2>Please <a href="/login">Login/<a href="/register">Register</a> to view all your URLs!</h2>
+    <% } else if (error === "access denied") { %>
+      <h1 class="display-4">Oops! An Error Has Occured</h1>
+      <p class="lead">You do not have access to the following URL!</p>
+    <% } else if (error === "registration failed") { %>
+      <h1 class="display-4">Oops! An Error Has Occured</h1>
+      <p class="lead">Registration has failed. The user already exists or you have not entered all the required information. Please try again</p>
+    <% } else if (error === "resource not found") { %>
+      <h1 class="display-4">Oops! An Error Has Occured</h1>
+      <p class="lead">Resource not found</p>
+    <% } else { %>
+      <h1 class="display-4">Oops! An Error Has Occured</h1>
+      <p class="lead">Login has failed. Please check your credentials and try again</p>
+    <% } %>
+  </div>
+</div>
+</body>
+
+</html>
