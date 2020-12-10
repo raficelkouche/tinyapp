@@ -17,10 +17,12 @@
         <button onclick="alert('Succesfully Logged out!')" class="btn btn-warning" style="margin-left:10px;" type="submit">Logout</button>
       </form>
     <% } else { %>
-      <form class="form-inline my-2 my-lg-0" action="/login" method="POST">
-        <input class="form-control mr-sm-2" type="text" placeholder="Username" aria-label="Username" name="username">
-        <button class="btn btn-primary my-2 my-sm-0" type="submit">Login</button>
-      </form>
+      <div class="navbar-item">
+        <a class="nav-item nav-link" href="/register" style="color:rgb(238, 196, 141);">Register</a>
+      </div>
+      <div class="navbar-item">
+        <a class="btn btn-outline-light" href="/login" role="button">Login</a>
+      </div>
     <% } %>
   </nav>
 </header>
