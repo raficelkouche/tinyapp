@@ -1,7 +1,7 @@
 //Helper Functions
-function generateRandomString() {
+function generateRandomString() {          //Generates a 6-digit random string
   return Math.random().toString(36).substring(2, 8);
-}
+};
 function checkIfUserExists(users, email) { //Returns a user's unique ID if the email was found
   for (let user in users) {
     if (users[user].email === email) {
@@ -9,7 +9,10 @@ function checkIfUserExists(users, email) { //Returns a user's unique ID if the e
     }
   }
   return undefined;
-}
+};
+function urlsForUser(id) {
+
+};
 //Server Setup
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -18,24 +21,20 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080;
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
+  b2xVn2: { longURL: "http://www.lighthouselabs.ca", userID: "z3812s"}
 };
 const users = {
-  "userRandomID": {
-    id: "userRandomID",
+  "aJ48lW": {
+    id: "aJ48lW",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: "purplemonkey"
   },
   "z3812s": {
     id: "z3812s",
     email: "abc@123.com",
-    password: "helloworldd"
+    password: "helloworld"
   }
 };
 
@@ -53,32 +52,33 @@ app.get("/urls.json", (req,res) => {
 });
 
 app.get("/urls", (req,res) => {
-  const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
+  const templateVars = {urls: urlDatabase, user: users[req.cookies["user_id"]]};
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {              //CREATE a new shortURL:LongURL
   const templateVars = { user: users[req.cookies["user_id"]] };
-  res.render("urls_new", templateVars);
+  
+  res.render((templateVars.user ? "urls_new" : "login"), templateVars);
 });
 
 app.get("/urls/:shortURL", (req,res) => {         //READ the shortURL:LongURL key/value pair
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies["user_id"]]};
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.cookies["user_id"]]};
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {           //Redirect requests to the actual long URL
-  res.redirect(urlDatabase[req.params.shortURL]);
+  res.redirect(urlDatabase[req.params.shortURL].longURL);
 });
 
-app.get("/register", (req,res) => {
+app.get("/register", (req,res) => {               //Once registration is successful, user is  automatically logged in
   const templateVars = {user: users[req.cookies["user_id"]]};
   res.render("registration", templateVars);
 });
 
 app.get("/login", (req,res) => {
-  const templateVars = {user: users[req.cookies["user_id"]]};
-  res.render("login", templateVars);
+  const templateVars = {urls: urlDatabase, user: users[req.cookies["user_id"]]};
+  res.render((templateVars.user ? "urls_index" : "login"), templateVars); //if a logged in user tries to access a login page, send them back to urls
 });
 
 app.post("/urls", (req,res) => {
@@ -96,7 +96,7 @@ app.post("/urls/:id", (req,res) => {              //UPDATE the longURL for an ex
   urlDatabase[req.params.id] = req.body.longURL;
   res.redirect("/urls");
 });
-
+//TO-DO: fix redirections to make more sense
 app.post("/login", (req,res) => {
   let user = checkIfUserExists(users, req.body.email); //will be either undefined or the unique ID
   if(user) {
