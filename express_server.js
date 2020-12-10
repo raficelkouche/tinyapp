@@ -10,16 +10,24 @@ function checkIfUserExists(users, email) { //Returns a user's unique ID if the e
   }
   return undefined;
 };
-function urlsForUser(id) {
-
+function urlsForUser(id) {                //Returns an object that contains the URLs for a given user
+  const filteredURLs = {};
+  for (let key in urlDatabase) {
+    if (urlDatabase[key].userID === id) {
+      filteredURLs[key] = urlDatabase[key];
+    }
+  }
+  return filteredURLs;
 };
+
 //Server Setup
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-
 const app = express();
 const PORT = 8080;
+
+//Objects to test the server
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
@@ -52,19 +60,31 @@ app.get("/urls.json", (req,res) => {
 });
 
 app.get("/urls", (req,res) => {
-  const templateVars = {urls: urlDatabase, user: users[req.cookies["user_id"]]};
-  res.render("urls_index", templateVars);
+  const user_id = req.cookies["user_id"];
+  const templateVars = {urls: urlsForUser(user_id), user: users[user_id], error: "not logged in"};
+  res.render((user_id ? "urls_index" : "error"), templateVars);
 });
 
-app.get("/urls/new", (req, res) => {              //CREATE a new shortURL:LongURL
+app.get("/urls/new", (req, res) => {              //Display a form to create a new URL
   const templateVars = { user: users[req.cookies["user_id"]] };
   
   res.render((templateVars.user ? "urls_new" : "login"), templateVars);
 });
 
 app.get("/urls/:shortURL", (req,res) => {         //READ the shortURL:LongURL key/value pair
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.cookies["user_id"]]};
-  res.render("urls_show", templateVars);
+  const user_id = req.cookies["user_id"];
+  const shortURL = req.params.shortURL;
+  if (!urlDatabase[shortURL]) {
+    res.render("error", {user: users[user_id], error: "resource not found"})
+  }
+  else if (urlDatabase[shortURL].userID === user_id) { //check if the URL belongs to the user
+    const templateVars = { shortURL: shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[user_id] };
+    res.render("urls_show", templateVars);
+  }
+  else {
+    res.statusCode = "403";
+    res.render("error", {user: users[user_id], error: "access denied"});
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => {           //Redirect requests to the actual long URL
@@ -77,26 +97,56 @@ app.get("/register", (req,res) => {               //Once registration is success
 });
 
 app.get("/login", (req,res) => {
-  const templateVars = {urls: urlDatabase, user: users[req.cookies["user_id"]]};
+  const user_id = req.cookies["user_id"];
+  const templateVars = { urls: urlsForUser(user_id), user: users[user_id]};
   res.render((templateVars.user ? "urls_index" : "login"), templateVars); //if a logged in user tries to access a login page, send them back to urls
 });
 
-app.post("/urls", (req,res) => {
-  const key = generateRandomString();
-  urlDatabase[key] = req.body.longURL;
-  res.redirect(`/urls/${key}`);
+app.post("/urls", (req, res) => {                 //CREATE a new shortURL:LongURL
+  const user_id = req.cookies["user_id"];
+  if (user_id) {
+    const key = generateRandomString();
+    urlDatabase[key] = {};
+    urlDatabase[key].longURL = req.body.longURL;
+    urlDatabase[key].userID = user_id;
+    res.redirect(`/urls/${key}`);
+    console.log(urlDatabase);
+  }
+  else {
+    res.statusCode = "403";
+    res.end();
+  }
 });
 
 app.post("/urls/:shortURL/delete", (req,res) => { //DELETE a shortURL and its corresponding longURL
-  delete urlDatabase[req.params.shortURL];
-  res.redirect("/urls");
+  const user_id = req.cookies["user_id"];
+  const shortURL = req.params.shortURL;
+  
+  if (urlDatabase[shortURL].userID === user_id) { //check if the URL belongs to the user
+    delete urlDatabase[shortURL];
+    res.redirect("/urls");
+  }
+  else {
+    res.statusCode = "403";
+    res.render("error", { user: users[user_id], error: "access denied" });
+  }
 });
 
 app.post("/urls/:id", (req,res) => {              //UPDATE the longURL for an existing shortURL
-  urlDatabase[req.params.id] = req.body.longURL;
-  res.redirect("/urls");
+  const user_id = req.cookies["user_id"];
+  const shortURL = req.params.id;
+  const longURL = req.body.longURL;
+
+  if (urlDatabase[shortURL].userID === user_id) {
+    urlDatabase[req.params.id].longURL = longURL;
+    res.redirect("/urls");
+  }
+  else {
+    res.statusCode = "403";
+    res.end();
+  }
 });
-//TO-DO: fix redirections to make more sense
+
 app.post("/login", (req,res) => {
   let user = checkIfUserExists(users, req.body.email); //will be either undefined or the unique ID
   if(user) {
@@ -106,12 +156,12 @@ app.post("/login", (req,res) => {
     }
     else {
       res.statusCode = 403;
-      res.end()
+      res.render("error", {user: undefined, error: "login failed"});
     }
   }
   else {
     res.statusCode = 403;
-    res.end()
+    res.render("error", { user: undefined, error: "login failed" });
   }
 });
 
@@ -120,14 +170,14 @@ app.post("/logout", (req,res) => {
   res.redirect("/urls");
 });
 
-app.post("/register", (req,res) => {
+app.post("/register", (req,res) => {                                        //create a new valid account
   if (checkIfUserExists(users,req.body.email)) {
     res.statusCode = "400";
-    res.end();
+    res.render("error", { user: undefined, error: "registration failed" })
   }
   else if (!req.body.email || !req.body.password) {
     res.statusCode = "400";
-    res.end();
+    res.render("error", { user: undefined, error: "registration failed" })
   }
   else {
     const user_id = generateRandomString();
