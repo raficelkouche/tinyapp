@@ -1,13 +1,14 @@
+//Helper Functions
 function generateRandomString() {
   return Math.random().toString(36).substring(2, 8);
 }
-function checkIfUserExists(users, email) {
+function checkIfUserExists(users, email) { //Returns a user's unique ID if the email was found
   for (let user in users) {
     if (users[user].email === email) {
-      return true;
+      return user;
     }
   }
-  return false;
+  return undefined;
 }
 //Server Setup
 const express = require('express');
@@ -71,8 +72,13 @@ app.get("/u/:shortURL", (req, res) => {           //Redirect requests to the act
 });
 
 app.get("/register", (req,res) => {
-  const templateVars = { user: users[req.cookies["user_id"]]};
+  const templateVars = {user: users[req.cookies["user_id"]]};
   res.render("registration", templateVars);
+});
+
+app.get("/login", (req,res) => {
+  const templateVars = {user: users[req.cookies["user_id"]]};
+  res.render("login", templateVars);
 });
 
 app.post("/urls", (req,res) => {
@@ -92,7 +98,21 @@ app.post("/urls/:id", (req,res) => {              //UPDATE the longURL for an ex
 });
 
 app.post("/login", (req,res) => {
-  res.redirect("/urls");
+  let user = checkIfUserExists(users, req.body.email); //will be either undefined or the unique ID
+  if(user) {
+    if(req.body.password === users[user].password) {
+      res.cookie("user_id", user);
+      res.redirect("/urls");
+    }
+    else {
+      res.statusCode = 403;
+      res.end()
+    }
+  }
+  else {
+    res.statusCode = 403;
+    res.end()
+  }
 });
 
 app.post("/logout", (req,res) => {
