@@ -4,10 +4,11 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["Homepage"](#)
-!["Display all the shortened URLs for a user"](#)
-!["Create a new shortened URL"](#)
-!["Display a single URL"](#)
+!["Homepage"](https://github.com/raficelkouche/tinyapp/blob/master/docs/home.png)
+!["Display all the shortened URLs for a user"](https://github.com/raficelkouche/tinyapp/blob/master/docs/urls.png)
+!["Display a single URL"](https://github.com/raficelkouche/tinyapp/blob/master/docs/specific%20URL.png)
+!["Create a new shortened URL"](https://github.com/raficelkouche/tinyapp/blob/master/docs/create%20URL.png)
+
 
 ## Dependencies
 
