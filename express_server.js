@@ -18,7 +18,8 @@ app.set("view engine", "ejs");
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
-  b2xVn2: { longURL: "http://www.lighthouselabs.ca", userID: "z3812s"}
+  b2xVn2: { longURL: "http://www.lighthouselabs.ca", userID: "z3812s"},
+  "5sev6w": { longURL: "http://www.kfc.ca", userID: "z3812s"}
 };
 const users = {
   "aJ48lW": {
