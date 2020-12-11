@@ -12,7 +12,7 @@ function getUserByEmail(users, email) {               //Returns a user's unique 
   return undefined;
 };
 
-function urlsForUser(urlDatabase, id) {                //Returns an object that contains the URLs for a given user
+function getURLsForUser(urlDatabase, id) {                //Returns an object that contains the URLs for a given user
   const filteredURLs = {};
   for (let key in urlDatabase) {
     if (urlDatabase[key].userID === id) {
@@ -22,4 +22,4 @@ function urlsForUser(urlDatabase, id) {                //Returns an object that 
   return filteredURLs;
 };
 
-module.exports = { generateRandomString, getUserByEmail, urlsForUser };
+module.exports = { generateRandomString, getUserByEmail, getURLsForUser };
