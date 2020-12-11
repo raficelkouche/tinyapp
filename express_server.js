@@ -7,6 +7,12 @@ const {generateRandomString, getUserByEmail, urlsForUser} = require("./helper");
 const saltRounds = 10;
 const app = express();
 const PORT = 8080;
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}));
+app.set("view engine", "ejs");
 
 //Objects to test the server
 const urlDatabase = {
@@ -27,17 +33,10 @@ const users = {
   }
 };
 
-app.use(bodyParser.urlencoded({extended: true}));
-//app.use(cookieParser());
-app.use(cookieSession({
-  name: 'session',
-  keys: ['key1', 'key2']
-}));
-app.set("view engine", "ejs");
-
 //Routing
 app.get("/", (req,res) => {
-  res.send("hello");
+  req.session = null;
+  res.render("home");
 });
 
 app.get("/urls.json", (req,res) => {
@@ -73,12 +72,19 @@ app.get("/urls/:shortURL", (req,res) => {         //READ the shortURL:LongURL ke
 });
 
 app.get("/u/:shortURL", (req, res) => {           //Redirect requests to the actual long URL
-  res.redirect(urlDatabase[req.params.shortURL].longURL);
+  const shortURL = req.params.shortURL;
+  if (urlDatabase[shortURL]) {
+    res.redirect(urlDatabase[shortURL].longURL);
+  }
+  else {
+    res.render("error", {error: "resource not found", user: users[req.session.user_id]})
+  }
 });
 
 app.get("/register", (req,res) => {               //Once registration is successful, user is  automatically logged in
-  const templateVars = {user: users[req.session.user_id]};
-  res.render("registration", templateVars);
+  const user_id = req.session.user_id;
+  const templateVars = { urls: urlsForUser(urlDatabase, user_id), user: users[user_id]};
+  res.render((templateVars.user ? "urls_index" : "registration"), templateVars);
 });
 
 app.get("/login", (req,res) => {
@@ -151,7 +157,7 @@ app.post("/login", (req,res) => {
 
 app.post("/logout", (req,res) => {
   req.session = null;
-  res.redirect("/urls");
+  res.redirect("/");
 });
 
 app.post("/register", (req,res) => {                                        //create a new valid account
