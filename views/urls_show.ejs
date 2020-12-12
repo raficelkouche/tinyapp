@@ -14,6 +14,10 @@
     <div class="card-body">
       <h5 class="card-title">TinyURL for: <%= longURL %></h5>
       <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
+      <div>
+        <p>Total Visits: <%= totalVisits %></p>
+        <p>Unique Visits:</p>
+      </div>
     </div>
     <div class="card-footer text-muted">
       <h4>Edit</h4>
@@ -25,6 +29,43 @@
         </div>
       </form>
     </div>
+  </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-3">
+        <br><br>
+        <table class="table">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">First</th>
+              <th scope="col">Last</th>
+              <th scope="col">Handle</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">1</th>
+              <td>Mark</td>
+              <td>Otto</td>
+              <td>@mdo</td>
+            </tr>
+            <tr>
+              <th scope="row">2</th>
+              <td>Jacob</td>
+              <td>Thornton</td>
+              <td>@fat</td>
+            </tr>
+            <tr>
+              <th scope="row">3</th>
+              <td>Larry</td>
+              <td>the Bird</td>
+              <td>@twitter</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    
   </div>
   
   <!-- Bootstrap JS -->
