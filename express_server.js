@@ -39,9 +39,13 @@ const users = {
 };
 
 //Routing
-app.get("/", (req,res) => {
-  req.session = null;
-  res.render("home");
+app.get("/", (req,res) => {      //If the user is logged in, homepage = urls_index
+  if (req.session.userID) {
+    res.redirect("/urls");
+  }
+  else {
+    res.render("home");
+  }
 });
 
 app.get("/urls.json", (req,res) => {
