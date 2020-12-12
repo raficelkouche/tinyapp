@@ -3,15 +3,19 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
+const methodOverride = require('method-override');
 const {generateRandomString, getUserByEmail, getURLsForUser} = require("./helper");
+
 const saltRounds = 10;
 const app = express();
 const PORT = 8080;
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
 }));
+app.use(methodOverride('_method'));
 app.set("view engine", "ejs");
 
 //Objects to test the server
@@ -106,7 +110,7 @@ app.post("/urls", (req, res) => {                 //CREATE a new shortURL:LongUR
   }
 });
 
-app.post("/urls/:shortURL/delete", (req,res) => { //DELETE a shortURL and its corresponding longURL
+app.delete("/urls/:shortURL/delete", (req,res) => { //DELETE a shortURL and its corresponding longURL
   const userID = req.session.userID;
   const shortURL = req.params.shortURL;
   
@@ -119,7 +123,7 @@ app.post("/urls/:shortURL/delete", (req,res) => { //DELETE a shortURL and its co
   }
 });
 
-app.post("/urls/:id", (req,res) => {              //UPDATE the longURL for an existing shortURL
+app.put("/urls/:id", (req,res) => {              //UPDATE the longURL for an existing shortURL
   const userID = req.session.userID;
   const shortURL = req.params.id;
   const longURL = req.body.longURL;
