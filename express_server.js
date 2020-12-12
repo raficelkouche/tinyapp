@@ -20,10 +20,10 @@ app.set("view engine", "ejs");
 
 //Objects to test the server
 const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW", totalVisits: 0, uniqueVisits: 0 },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW", totalVisits: 0, uniqueVisits: 0 },
-  b2xVn2: { longURL: "http://www.lighthouselabs.ca", userID: "z3812s", totalVisits: 0, uniqueVisits: 0},
-  "5sev6w": { longURL: "http://www.kfc.ca", userID: "z3812s", totalVisits: 0, uniqueVisits: 0}
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW", totalVisits: 0, uniqueVisits: 0, visitLog: []},          //visitLog will hold arrays that contain vistorID and timestamp of visit
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW", totalVisits: 0, uniqueVisits: 0, visitLog: [] },
+  b2xVn2: { longURL: "http://www.lighthouselabs.ca", userID: "z3812s", totalVisits: 0, uniqueVisits: 0, visitLog: []},
+  "5sev6w": { longURL: "http://www.kfc.ca", userID: "z3812s", totalVisits: 0, uniqueVisits: 0, visitLog: []}
 };
 const users = {
   "aJ48lW": {
@@ -69,9 +69,10 @@ app.get("/urls/:shortURL", (req,res) => {         //READ the shortURL:LongURL ke
     const templateVars = { 
       shortURL: shortURL, 
       longURL: urlDatabase[req.params.shortURL].longURL, 
-      user: users[userID], 
+      user: users[userID],
       totalVisits: urlDatabase[shortURL].totalVisits, 
-      uniqueVisits: urlDatabase[shortURL].uniqueVisits 
+      uniqueVisits: urlDatabase[shortURL].uniqueVisits,
+      visitLog: urlDatabase[shortURL].visitLog
     };
     res.render("urls_show", templateVars);
   } else {
@@ -88,6 +89,11 @@ app.get("/u/:shortURL", (req, res) => {           //Redirect requests to the act
       urlDatabase[shortURL].uniqueVisits++;       //count the number of unique visits
     }
     urlDatabase[shortURL].totalVisits++;          //count the number of visits
+    
+    const date = new Date(Date.now() - 18000000)  //The 18000000 is to convert time from GMT to EST
+    const timestamp = [req.session.visitorID, `${date.toUTCString()}-5`]; 
+    urlDatabase[shortURL].visitLog.push(timestamp);
+    
     res.redirect(urlDatabase[shortURL].longURL);
   } else {
     res.render("error", {error: "resource not found", user: users[req.session.userID]});
