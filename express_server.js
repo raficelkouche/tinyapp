@@ -20,10 +20,10 @@ app.set("view engine", "ejs");
 
 //Objects to test the server
 const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW", totalVisits: 0 },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW", totalVisits: 0 },
-  b2xVn2: { longURL: "http://www.lighthouselabs.ca", userID: "z3812s", totalVisits: 0},
-  "5sev6w": { longURL: "http://www.kfc.ca", userID: "z3812s", totalVisits: 0}
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW", totalVisits: 0, uniqueVisits: 0 },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW", totalVisits: 0, uniqueVisits: 0 },
+  b2xVn2: { longURL: "http://www.lighthouselabs.ca", userID: "z3812s", totalVisits: 0, uniqueVisits: 0},
+  "5sev6w": { longURL: "http://www.kfc.ca", userID: "z3812s", totalVisits: 0, uniqueVisits: 0}
 };
 const users = {
   "aJ48lW": {
@@ -66,7 +66,13 @@ app.get("/urls/:shortURL", (req,res) => {         //READ the shortURL:LongURL ke
   if (!urlDatabase[shortURL]) {
     res.render("error", {user: users[userID], error: "resource not found"});
   } else if (urlDatabase[shortURL].userID === userID) { //check if the URL belongs to the user
-    const templateVars = { shortURL: shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[userID], totalVisits: urlDatabase[shortURL].totalVisits };
+    const templateVars = { 
+      shortURL: shortURL, 
+      longURL: urlDatabase[req.params.shortURL].longURL, 
+      user: users[userID], 
+      totalVisits: urlDatabase[shortURL].totalVisits, 
+      uniqueVisits: urlDatabase[shortURL].uniqueVisits 
+    };
     res.render("urls_show", templateVars);
   } else {
     res.statusCode = "403";
@@ -77,7 +83,11 @@ app.get("/urls/:shortURL", (req,res) => {         //READ the shortURL:LongURL ke
 app.get("/u/:shortURL", (req, res) => {           //Redirect requests to the actual long URL
   const shortURL = req.params.shortURL;
   if (urlDatabase[shortURL]) {
-    urlDatabase[shortURL].totalVisits++;
+    if (!req.session.visitorID) {                 //generate Visitor ID only for unique visits
+      req.session.visitorID = generateRandomString();
+      urlDatabase[shortURL].uniqueVisits++;       //count the number of unique visits
+    }
+    urlDatabase[shortURL].totalVisits++;          //count the number of visits
     res.redirect(urlDatabase[shortURL].longURL);
   } else {
     res.render("error", {error: "resource not found", user: users[req.session.userID]});
