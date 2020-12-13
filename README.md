@@ -6,7 +6,7 @@ TinyApp is a full stack RESTful web application built with Node and Express that
 
 !["Homepage"](https://github.com/raficelkouche/tinyapp/blob/master/docs/home.png)
 !["Display all the shortened URLs for a user"](https://github.com/raficelkouche/tinyapp/blob/master/docs/urls.png)
-!["Display a single URL"](https://github.com/raficelkouche/tinyapp/blob/master/docs/specific%20URL.png)
+!["Display a single URL"](https://github.com/raficelkouche/tinyapp/blob/master/docs/specific_url.png)
 !["Create a new shortened URL"](https://github.com/raficelkouche/tinyapp/blob/master/docs/create%20URL.png)
 
 
