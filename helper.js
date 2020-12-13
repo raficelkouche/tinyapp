@@ -4,7 +4,7 @@ function generateRandomString() {                     //Generates a 6-digit rand
 };
 
 function getUserByEmail(users, email) {               //Returns a user's unique ID if the email was found
-  for (let user in users) {
+  for (const user in users) {
     if (users[user].email === email) {
       return user; //string
     }
@@ -14,7 +14,7 @@ function getUserByEmail(users, email) {               //Returns a user's unique 
 
 function getURLsForUser(urlDatabase, id) {                //Returns an object that contains the URLs for a given user
   const filteredURLs = {};
-  for (let key in urlDatabase) {
+  for (const key in urlDatabase) {
     if (urlDatabase[key].userID === id) {
       filteredURLs[key] = urlDatabase[key];
     }
