@@ -20,15 +20,15 @@ app.set("view engine", "ejs");
 
 //Objects to test the server
 const urlDatabase = { //visitLog will hold arrays that contain vistorID and timestamp of visit
-  b6UTxQ: { 
+  b6UTxQ: {
     longURL: "https://www.tsn.ca",
     userID: "aJ48lW",
     dateCreated: "October 19, 2020",
     totalVisits: 0,
     uniqueVisits: 0,
     visitLog: []
-  },          
-  i3BoGr: { 
+  },
+  i3BoGr: {
     longURL: "https://www.google.ca",
     userID: "aJ48lW",
     dateCreated: "December 10, 2020",
@@ -36,7 +36,7 @@ const urlDatabase = { //visitLog will hold arrays that contain vistorID and time
     uniqueVisits: 0,
     visitLog: []
   },
-  b2xVn2: { 
+  b2xVn2: {
     longURL: "http://www.lighthouselabs.ca",
     userID: "z3812s",
     dateCreated: "November 3, 2020",
@@ -44,7 +44,7 @@ const urlDatabase = { //visitLog will hold arrays that contain vistorID and time
     uniqueVisits: 0,
     visitLog: []
   },
-  "5sev6w": { 
+  "5sev6w": {
     longURL: "http://www.kfc.ca",
     userID: "z3812s",
     dateCreated: "November 13, 2020",
@@ -67,7 +67,7 @@ const users = {
 };
 
 //Routing
-app.get("/", (req,res) => {      
+app.get("/", (req,res) => {
   //If the user is logged in, homepage = urls_index
   (req.session.userID) ? res.redirect("/urls") : res.render("home");
 });
@@ -80,32 +80,32 @@ app.get("/urls", (req,res) => {
   const userID = req.session.userID;
 
   const templateVars = {
-    urls: getURLsForUser(urlDatabase, userID), 
-    user: users[userID], 
+    urls: getURLsForUser(urlDatabase, userID),
+    user: users[userID],
     error: "not logged in"};
 
   res.render((userID ? "urls_index" : "error"), templateVars);
 });
 //Display a form to create a new URL
-app.get("/urls/new", (req, res) => {              
+app.get("/urls/new", (req, res) => {
   const templateVars = { user: users[req.session.userID] };
   res.render((templateVars.user ? "urls_new" : "login"), templateVars);
 });
 
 //READ the shortURL:LongURL key/value pair
-app.get("/urls/:shortURL", (req,res) => {         
+app.get("/urls/:shortURL", (req,res) => {
   const userID = req.session.userID;
   const shortURL = req.params.shortURL;
 
   if (!urlDatabase[shortURL]) {
     res.render("error", {user: users[userID], error: "resource not found"});
     //check if the URL belongs to the user
-  } else if (urlDatabase[shortURL].userID === userID) { 
-    const templateVars = { 
-      shortURL: shortURL, 
-      longURL: urlDatabase[req.params.shortURL].longURL, 
+  } else if (urlDatabase[shortURL].userID === userID) {
+    const templateVars = {
+      shortURL: shortURL,
+      longURL: urlDatabase[req.params.shortURL].longURL,
       user: users[userID],
-      totalVisits: urlDatabase[shortURL].totalVisits, 
+      totalVisits: urlDatabase[shortURL].totalVisits,
       uniqueVisits: urlDatabase[shortURL].uniqueVisits,
       visitLog: urlDatabase[shortURL].visitLog
     };
@@ -117,21 +117,21 @@ app.get("/urls/:shortURL", (req,res) => {
 });
 
 //Redirect requests to the actual long URL
-app.get("/u/:shortURL", (req, res) => {           
+app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
 
   if (urlDatabase[shortURL]) {
     //generate Visitor ID only for unique visitors
-    if (!req.session.visitorID) {                 
+    if (!req.session.visitorID) {
       req.session.visitorID = generateRandomString();
     }
 
-    //count the visits  
+    //count the visits
     let i = 0;
     urlDatabase[shortURL].totalVisits++;
     urlDatabase[shortURL].uniqueVisits++;
     //before adding the visitor to the log, check if they exist, if they do, decrement unique visitors
-    while(i < urlDatabase[shortURL].visitLog.length) {
+    while (i < urlDatabase[shortURL].visitLog.length) {
       if (urlDatabase[shortURL].visitLog[i][0] === req.session.visitorID) {
         urlDatabase[shortURL].uniqueVisits--;
       }
@@ -139,7 +139,7 @@ app.get("/u/:shortURL", (req, res) => {
     }
 
     //update the visit log with the visitor ID and timestamp
-    const date = new Date(Date.now() - 18000000)  //The 18000000 is to convert time from GMT to EST
+    const date = new Date(Date.now() - 18000000);  //The 18000000 is to convert time from GMT to EST
     const timestamp = [req.session.visitorID, `${date.toUTCString()}-5`];
     urlDatabase[shortURL].visitLog.push(timestamp);
 
@@ -150,7 +150,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 //Once registration is successful, user is  automatically logged in
-app.get("/register", (req,res) => {               
+app.get("/register", (req,res) => {
   const userID = req.session.userID;
   const templateVars = { urls: getURLsForUser(urlDatabase, userID), user: users[userID]};
   res.render((templateVars.user ? "urls_index" : "registration"), templateVars); //if a logged in user tries to access the registration page, send them back to urls
@@ -160,11 +160,11 @@ app.get("/login", (req,res) => {
   const userID = req.session.userID;
   const templateVars = { urls: getURLsForUser(urlDatabase, userID), user: users[userID]};
   //if a logged in user tries to access the login page, send them back to urls
-  res.render((templateVars.user ? "urls_index" : "login"), templateVars); 
+  res.render((templateVars.user ? "urls_index" : "login"), templateVars);
 });
 
 //CREATE a new shortURL:LongURL
-app.post("/urls", (req, res) => {                 
+app.post("/urls", (req, res) => {
   const userID = req.session.userID;
   if (userID) {
     const key = generateRandomString();
@@ -185,11 +185,11 @@ app.post("/urls", (req, res) => {
 });
 
 //DELETE a shortURL and its corresponding longURL
-app.delete("/urls/:shortURL/delete", (req,res) => { 
+app.delete("/urls/:shortURL/delete", (req,res) => {
   const userID = req.session.userID;
   const shortURL = req.params.shortURL;
   //check if the URL belongs to the user
-  if (urlDatabase[shortURL].userID === userID) { 
+  if (urlDatabase[shortURL].userID === userID) {
     delete urlDatabase[shortURL];
     res.redirect("/urls");
   } else {
@@ -199,7 +199,7 @@ app.delete("/urls/:shortURL/delete", (req,res) => {
 });
 
 //UPDATE the longURL for an existing shortURL
-app.put("/urls/:id", (req,res) => {              
+app.put("/urls/:id", (req,res) => {
   const userID = req.session.userID;
   const shortURL = req.params.id;
   const longURL = req.body.longURL;
@@ -235,7 +235,7 @@ app.post("/logout", (req,res) => {
 });
 
 //create an account and check for its validity
-app.post("/register", (req,res) => {                           
+app.post("/register", (req,res) => {
   if (getUserByEmail(users,req.body.email)) {
     res.statusCode = "400";
     res.render("error", { user: undefined, error: "registration failed" });
